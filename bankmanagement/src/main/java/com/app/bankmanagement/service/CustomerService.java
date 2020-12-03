@@ -16,4 +16,7 @@ public interface CustomerService {
 	
 	public void updateCustomer (Customer theCustomer);
 
+	public boolean isDeleted(String customerId);
+	
+	public boolean isActive(String customerId);
 }

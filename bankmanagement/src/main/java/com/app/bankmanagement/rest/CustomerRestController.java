@@ -4,18 +4,20 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.bankmanagement.entity.Customer;
-import com.app.bankmanagement.helper.StringResponse;
 import com.app.bankmanagement.service.CustomerService;
 
 @RestController
@@ -25,9 +27,6 @@ public class CustomerRestController {
 	@Autowired
 	@Qualifier("customerServiceImpl")
 	CustomerService customerService;
-	
-	@Autowired
-	private StringResponse stringResponse;
 	
 	//expose /customers and return list of customers 
 	@GetMapping("/customers")
@@ -46,33 +45,39 @@ public class CustomerRestController {
 	
 	@PostMapping("/customers")
 	@ResponseBody
-	public StringResponse addCustomer(@RequestBody Customer theCustomer){
+	public ResponseEntity<String> addCustomer(@RequestBody Customer theCustomer,@RequestHeader String role){
+		if(!role.equals("employee")) {
+			return new ResponseEntity<>("Unauthorized access",HttpStatus.FORBIDDEN);
+		}
 		customerService.saveCustomer(theCustomer);
-		stringResponse.setMessage("Customer Saved");
-		return stringResponse;
+		return ResponseEntity.ok("Customer Saved");
 	}
 	
 	@PutMapping("/customers")
 	@ResponseBody
-	public StringResponse updateCustomer(@RequestBody Customer theCustomer){
+	public ResponseEntity<String> updateCustomer(@RequestBody Customer theCustomer,@RequestHeader String role){
+		if(!role.equals("employee")) {
+			return new ResponseEntity<>("Unauthorized access",HttpStatus.FORBIDDEN);
+		}
 		Customer tempCustomer = customerService.getCustomer(theCustomer.getCustomerId());
 		if(tempCustomer == null){
-			throw new RuntimeException("Invalid customer id");
+			return new ResponseEntity<>("Invalid customer id",HttpStatus.NOT_FOUND);
 		}
-		customerService.saveCustomer(theCustomer);
-		stringResponse.setMessage("Customer Updated");
-		return stringResponse;
+		customerService.updateCustomer(theCustomer);
+		return ResponseEntity.ok("Customer Updated");
 	}
 	
 	@DeleteMapping("/customers/{customerId}")
-	public StringResponse deleteCustomer(@PathVariable String customerId){
+	public ResponseEntity<String> deleteCustomer(@PathVariable String customerId, @RequestHeader String role){
+		if(!role.equals("employee")) {
+			return new ResponseEntity<>("Unauthorized access",HttpStatus.FORBIDDEN);
+		}
 		Customer c = customerService.getCustomer(customerId);
 		if(c == null){
 			throw new RuntimeException("Invalid customer id");
 		}
 		customerService.deleteCustomer(customerId);
 		
-		stringResponse.setMessage("Deleted customer with id: "+ customerId);
-		return stringResponse;
+		return ResponseEntity.ok("Deleted customer with id: "+ customerId);
 	}
 }

@@ -111,4 +111,22 @@ public class CustomerDAOImpl implements CustomerDAO {
 
 	}
 
+	@Override
+	public boolean isDeleted(String customerId) {
+		Customer customer = getCustomer(customerId);
+		if(customer == null) {
+			return false;
+		}
+		return customer.isDeleted();
+	}
+
+	@Override
+	public boolean isActive(String customerId) {
+		Customer customer = getCustomer(customerId);
+		if(customer == null) {
+			return false;
+		}
+		return customer.getStatus().equals("Active");
+	}
+
 }

@@ -13,4 +13,8 @@ public interface CustomerDAO {
 	public void saveCustomer(Customer theCustomer);
 	
 	public void deleteCustomer(String customerId);
+	
+	public boolean isDeleted(String customerId);
+	
+	public boolean isActive(String customerId);
 }

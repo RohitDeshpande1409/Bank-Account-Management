@@ -16,6 +16,8 @@ public class AccountServiceImpl implements AccountService {
 	private AccountDAO accountDAO;
 	@Autowired
 	private TransactionService transactionService;
+	@Autowired
+	private CustomerService customerService;
 	
 	@Override
 	@Transactional
@@ -28,6 +30,9 @@ public class AccountServiceImpl implements AccountService {
 	public String creditAmount(double amount, String accountId) {
 		//transactionService.addTransaction(transaction);
 		String customerId = getCustomerIdBasedOnAccountId(accountId);
+		if(customerService.isDeleted(customerId) || !customerService.isActive(customerId)) {
+			return "Invalid Customer";
+		}
 		double balance = accountDAO.creditAmount(amount, accountId);
 		saveTransaction(accountId, customerId, "credit", amount, "ATM", balance);
 		//transactionService.makeTransactionEntry(accountId, customerId, "credit", amount, "ATM", balance);
@@ -37,11 +42,15 @@ public class AccountServiceImpl implements AccountService {
 	@Override
 	@Transactional
 	public String debitAmount(double amount, String accountId) {
+		String customerId = getCustomerIdBasedOnAccountId(accountId);
+		if(customerService.isDeleted(customerId) || !customerService.isActive(customerId)) {
+			return "Invalid Customer";
+		}
 		double balance = accountDAO.debitAmount(amount, accountId);
 		if(balance < 0){
 			return "Insufficient funds";
 		}
-		String customerId = getCustomerIdBasedOnAccountId(accountId);
+		
 		saveTransaction(accountId, customerId, "debit", amount, "ATM", balance);
 		//transactionService.makeTransactionEntry(accountId, customerId, "debit", amount, "ATM", balance);
 		return "Amount debited. Balance is : "+balance;
@@ -56,11 +65,14 @@ public class AccountServiceImpl implements AccountService {
 	@Override
 	@Transactional
 	public String debitAmount(double amount, String accountId, String payeeNickName) {
+		String customerId = getCustomerIdBasedOnAccountId(accountId);
+		if(customerService.isDeleted(customerId) || !customerService.isActive(customerId)) {
+			return "Invalid Customer";
+		}
 		double balance = accountDAO.debitAmount(amount, accountId);
 		if(balance < 0){
 			return "Insufficient funds";
 		}
-		String customerId = getCustomerIdBasedOnAccountId(accountId);
 		saveTransaction(accountId, customerId, "debit", amount, "Fund transferred to "+payeeNickName, balance);
 		//transactionService.makeTransactionEntry(accountId, customerId, "debit", amount, "ATM", balance);
 		return "Amount debited. Balance is : "+balance;

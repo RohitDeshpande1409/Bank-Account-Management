@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,8 +15,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.bankmanagement.entity.Payee;
-import com.app.bankmanagement.entity.Transaction;
-import com.app.bankmanagement.helper.StringResponse;
 import com.app.bankmanagement.service.PayeeService;
 
 @RestController
@@ -24,9 +23,6 @@ public class PayeeRestController {
 
 	@Autowired
 	PayeeService payeeService;
-	
-	@Autowired
-	private StringResponse stringResponse;
 	
 	@GetMapping("/payees/{payeeId}")
 	public Payee getPayee(@PathVariable String payeeId){
@@ -41,10 +37,9 @@ public class PayeeRestController {
 	
 	@DeleteMapping("/payees/{payeeId}")
 	@ResponseBody
-	public StringResponse deletePayee(@PathVariable String payeeId){
+	public ResponseEntity<String> deletePayee(@PathVariable String payeeId){
 		payeeService.delete(payeeId);
-		stringResponse.setMessage("Deleted");
-		return stringResponse;
+		return ResponseEntity.ok("Deleted");
 	}
 	
 	@GetMapping("/payees")

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.bankmanagement.entity.Account;
-import com.app.bankmanagement.helper.StringResponse;
 import com.app.bankmanagement.service.AccountService;
 
 @RestController
@@ -24,9 +24,6 @@ public class AccountRestController {
 	@Autowired
 	@Qualifier("accountServiceImpl")
 	AccountService accountService;
-	
-	@Autowired
-	StringResponse stringResponse;
 	
 	/*@Autowired
 	public AccountRestController(@Qualifier("accountServiceImpl") AccountService theAccountService){
@@ -39,7 +36,7 @@ public class AccountRestController {
 	
 	@PutMapping("/account/{accountId}/transfer")
 	@ResponseBody
-	public StringResponse transferAmount(@PathVariable String accountId, @RequestBody Map<String,String> bodyData){
+	public ResponseEntity<String> transferAmount(@PathVariable String accountId, @RequestBody Map<String,String> bodyData){
 		double amount = Double.valueOf(bodyData.get("amount"));
 		String type = bodyData.get("type");
 		String message = "Invalid operation";
@@ -48,15 +45,14 @@ public class AccountRestController {
 		}else if(type.equals("debit")){
 			message = accountService.debitAmount(amount, accountId);
 		}
-		stringResponse.setMessage(message);
-		return stringResponse;
+		return ResponseEntity.ok(message);
 	}
 	
 	@PutMapping("/account/{accountId}/transfer/{payeeNickName}")
 	@ResponseBody
-	public StringResponse transferAmount(@PathVariable String accountId,@PathVariable String payeeNickName, @RequestBody Map<String,String> bodyData){
+	public ResponseEntity<String> transferAmount(@PathVariable String accountId,@PathVariable String payeeNickName, @RequestBody Map<String,String> bodyData){
 		String message = accountService.debitAmount(Double.valueOf(bodyData.get("amount")), accountId,payeeNickName);
-		stringResponse.setMessage(message);
-		return stringResponse;
+		
+		return ResponseEntity.ok(message);
 	}
 }

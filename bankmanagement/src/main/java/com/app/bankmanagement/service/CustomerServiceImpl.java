@@ -63,8 +63,21 @@ public class CustomerServiceImpl implements CustomerService{
 	}
 
 	@Override
+	@Transactional
 	public void updateCustomer(Customer theCustomer) {
 		theCustomer.setUpdateAt(Instant.now());
 		customerDAO.saveCustomer(theCustomer);
+	}
+
+	@Override
+	@Transactional
+	public boolean isDeleted(String customerId) {
+		return customerDAO.isDeleted(customerId);
+	}
+
+	@Override
+	@Transactional
+	public boolean isActive(String customerId) {
+		return customerDAO.isActive(customerId);
 	}
 }
